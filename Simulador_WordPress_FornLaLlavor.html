@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador WordPress · Forn La Llavor (Dossier WP Part 1)</title>
+<style>
+  /* ============ COLORS WORDPRESS ADMIN REALS ============ */
+  :root {
+    --wp-bg: #f0f0f1;
+    --wp-sidebar: #1d2327;
+    --wp-sidebar-hover: #2c3338;
+    --wp-sidebar-text: #c3c4c7;
+    --wp-sidebar-active: #2271b1;
+    --wp-accent: #2271b1;
+    --wp-accent-dark: #135e96;
+    --wp-text: #1d2327;
+    --wp-text-muted: #50575e;
+    --wp-border: #c3c4c7;
+    --wp-border-light: #dcdcde;
+    --wp-card: #ffffff;
+    --wp-success: #00a32a;
+    --wp-warning: #dba617;
+    --wp-danger: #d63638;
+    --wp-topbar: #1d2327;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    background: var(--wp-bg);
+    color: var(--wp-text);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  /* ============ BARRA INSTRUCCIONS DOCENT ============ */
+  .docent-bar {
+    background: linear-gradient(90deg, #8B0000 0%, #6e0000 100%);
+    color: white;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .docent-bar strong { font-size: 14px; }
+  .docent-bar .badge {
+    background: rgba(255,255,255,0.2);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    margin-left: 10px;
+  }
+  .docent-bar button {
+    background: white;
+    color: #8B0000;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  /* ============ TOPBAR WP ============ */
+  .wp-topbar {
+    background: var(--wp-topbar);
+    color: #c3c4c7;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    font-size: 13px;
+    gap: 16px;
+  }
+  .wp-topbar .wp-logo {
+    color: #8c8f94;
+    font-weight: bold;
+    font-size: 16px;
+  }
+  .wp-topbar a {
+    color: #c3c4c7;
+    text-decoration: none;
+    padding: 0 8px;
+    height: 32px;
+    line-height: 32px;
+  }
+  .wp-topbar .right { margin-left: auto; display: flex; gap: 8px; }
+
+  /* ============ LAYOUT ============ */
+  .wp-layout {
+    display: flex;
+    min-height: calc(100vh - 80px);
+  }
+
+  /* ============ SIDEBAR ============ */
+  .wp-sidebar {
+    background: var(--wp-sidebar);
+    width: 200px;
+    flex-shrink: 0;
+    color: var(--wp-sidebar-text);
+    padding-top: 8px;
+  }
+  .wp-sidebar .menu-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-left: 3px solid transparent;
+    transition: background 0.1s;
+  }
+  .wp-sidebar .menu-item:hover {
+    background: var(--wp-sidebar-hover);
+    color: white;
+  }
+  .wp-sidebar .menu-item.active {
+    background: var(--wp-accent);
+    color: white;
+    border-left-color: white;
+  }
+  .wp-sidebar .menu-item .icon { width: 20px; text-align: center; opacity: 0.85; }
+  .wp-sidebar .menu-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.1);
+    margin: 8px 0;
+  }
+  .wp-sidebar .menu-section {
+    padding: 8px 12px 4px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #72777c;
+  }
+
+  /* ============ CONTINGUT ============ */
+  .wp-content {
+    flex: 1;
+    padding: 20px 24px;
+    overflow-x: auto;
+  }
+  .wp-page-title {
+    font-size: 23px;
+    font-weight: 400;
+    color: var(--wp-text);
+    margin-bottom: 8px;
+    padding: 9px 0 4px;
+  }
+  .wp-page-subtitle {
+    color: var(--wp-text-muted);
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+
+  /* ============ CAIXES ============ */
+  .wp-card {
+    background: var(--wp-card);
+    border: 1px solid var(--wp-border);
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.04);
+  }
+  .wp-card h2 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--wp-border-light);
+  }
+  .wp-card h3 {
+    font-size: 13px;
+    font-weight: 600;
+    margin: 12px 0 6px;
+  }
+
+  /* ============ FORMULARIS ============ */
+  .form-row {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 16px;
+    padding: 12px 0;
+    align-items: start;
+    border-bottom: 1px solid var(--wp-border-light);
+  }
+  .form-row:last-child { border-bottom: none; }
+  .form-row label {
+    font-weight: 600;
+    padding-top: 4px;
+  }
+  .form-row input[type=text],
+  .form-row input[type=url],
+  .form-row select {
+    width: 100%;
+    max-width: 400px;
+    padding: 6px 10px;
+    border: 1px solid var(--wp-border);
+    border-radius: 4px;
+    font-size: 13px;
+    background: white;
+  }
+  .form-row .desc {
+    color: var(--wp-text-muted);
+    font-size: 12px;
+    margin-top: 4px;
+    font-style: italic;
+  }
+  .form-row input[disabled] { background: #f6f7f7; }
+
+  /* ============ TAULES WP ============ */
+  .wp-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border: 1px solid var(--wp-border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .wp-table thead {
+    background: #f6f7f7;
+  }
+  .wp-table th {
+    text-align: left;
+    padding: 10px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--wp-border);
+    color: var(--wp-text);
+  }
+  .wp-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--wp-border-light);
+    font-size: 13px;
+  }
+  .wp-table tr:last-child td { border-bottom: none; }
+  .wp-table tr:hover td { background: #f6f7f7; }
+  .wp-table .row-title { font-weight: 600; color: var(--wp-accent); }
+  .wp-table .row-actions {
+    color: var(--wp-text-muted);
+    font-size: 12px;
+    margin-top: 4px;
+  }
+  .wp-table .row-actions a { color: var(--wp-accent); text-decoration: none; }
+
+  /* ============ BADGES ============ */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge-active { background: #d1f1d8; color: #00712b; }
+  .badge-inactive { background: #fce8eb; color: #8a1f25; }
+  .badge-warning { background: #fcf2d6; color: #735508; }
+
+  /* ============ BOTONS WP ============ */
+  .btn {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 3px;
+    font-size: 13px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    text-decoration: none;
+  }
+  .btn-primary {
+    background: var(--wp-accent);
+    color: white;
+    border-color: var(--wp-accent-dark);
+  }
+  .btn-primary:hover { background: var(--wp-accent-dark); }
+  .btn-secondary {
+    background: white;
+    color: var(--wp-accent);
+    border-color: var(--wp-accent);
+  }
+
+  /* ============ DASHBOARD WIDGETS ============ */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .stat-card {
+    background: white;
+    border: 1px solid var(--wp-border);
+    border-radius: 4px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .stat-card .num {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--wp-accent);
+  }
+  .stat-card .label { color: var(--wp-text-muted); font-size: 13px; }
+
+  /* ============ MENÚ NAV (config menus) ============ */
+  .menu-builder {
+    border: 1px solid var(--wp-border);
+    background: white;
+    border-radius: 4px;
+    padding: 12px;
+  }
+  .menu-item-row {
+    background: #fafafa;
+    border: 1px solid var(--wp-border-light);
+    margin-bottom: 6px;
+    padding: 10px 14px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: grab;
+  }
+  .menu-item-row .drag { color: var(--wp-text-muted); margin-right: 8px; }
+  .menu-item-row .label-name { font-weight: 600; }
+  .menu-item-row .label-type { color: var(--wp-text-muted); font-size: 12px; margin-left: 8px; }
+
+  /* ============ CONFIGURACIÓ PLUGIN-LIKE ============ */
+  .plugin-card {
+    background: white;
+    border: 1px solid var(--wp-border);
+    border-left: 4px solid var(--wp-accent);
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    border-radius: 3px;
+  }
+  .plugin-card .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .plugin-card h3 { font-size: 15px; font-weight: 600; color: var(--wp-text); }
+  .plugin-card .desc-plugin { color: var(--wp-text-muted); font-size: 13px; margin-bottom: 8px; }
+  .plugin-card .config-summary {
+    background: #f6f7f7;
+    padding: 10px 12px;
+    border-radius: 3px;
+    font-size: 12px;
+    margin-top: 8px;
+    border-left: 3px solid var(--wp-success);
+  }
+  .plugin-card .config-summary strong { color: var(--wp-success); }
+
+  /* ============ FRONTEND PREVIEW ============ */
+  .frontend-preview {
+    border: 6px solid #2c3338;
+    border-radius: 8px;
+    background: #faf6f0;
+    color: #2b1810;
+    overflow: hidden;
+    margin-top: 12px;
+    font-family: Georgia, serif;
+  }
+  .frontend-header {
+    background: #6b3410;
+    color: #faf6f0;
+    padding: 14px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .frontend-header h1 {
+    font-size: 22px;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: normal;
+    font-style: italic;
+  }
+  .frontend-nav {
+    display: flex;
+    gap: 18px;
+    background: #faf6f0;
+    border-bottom: 2px solid #6b3410;
+    padding: 10px 24px;
+    font-size: 14px;
+  }
+  .frontend-nav a {
+    color: #6b3410;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .frontend-hero {
+    padding: 32px 24px;
+    text-align: center;
+    background: linear-gradient(180deg, #faf6f0 0%, #e8dcc4 100%);
+  }
+  .frontend-hero h2 {
+    font-size: 26px;
+    font-style: italic;
+    color: #6b3410;
+    margin-bottom: 10px;
+  }
+  .frontend-hero p { color: #5c4222; font-size: 14px; }
+  .frontend-products {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    padding: 20px 24px;
+  }
+  .product-card {
+    background: white;
+    padding: 14px;
+    border-radius: 4px;
+    text-align: center;
+    border: 1px solid #d4c4a8;
+  }
+  .product-card .emoji { font-size: 36px; }
+  .product-card h4 { color: #6b3410; margin: 6px 0 4px; }
+  .product-card .price { color: #8a6730; font-weight: bold; }
+  .frontend-footer {
+    background: #2b1810;
+    color: #d4c4a8;
+    padding: 12px 24px;
+    text-align: center;
+    font-size: 12px;
+  }
+
+  /* ============ XML / CODI ============ */
+  .code-block {
+    background: #f6f7f7;
+    border: 1px solid var(--wp-border-light);
+    border-radius: 4px;
+    padding: 12px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    overflow-x: auto;
+    white-space: pre;
+    color: var(--wp-text);
+  }
+  .code-block .tag { color: #c2185b; }
+  .code-block .attr { color: #1976d2; }
+  .code-block .str { color: #2e7d32; }
+  .code-block .comment { color: #757575; font-style: italic; }
+
+  /* ============ MOSTRAR/AMAGAR SECCIONS ============ */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* ============ SEMÀFOR SEO ============ */
+  .seo-light {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .seo-light .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+  .seo-good { background: #e8f5e9; color: #2e7d32; }
+  .seo-good .dot { background: #2e7d32; }
+
+  /* ============ RESPONSIVE BÀSIC ============ */
+  @media (max-width: 900px) {
+    .wp-sidebar { width: 50px; }
+    .wp-sidebar .menu-item span:not(.icon) { display: none; }
+    .wp-sidebar .menu-section { display: none; }
+    .form-row { grid-template-columns: 1fr; }
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .frontend-products { grid-template-columns: 1fr; }
+  }
+
+  /* Tooltip didàctic */
+  .didactic-tip {
+    background: #fff8e1;
+    border-left: 4px solid #f9a825;
+    padding: 10px 14px;
+    margin: 12px 0;
+    border-radius: 3px;
+    font-size: 13px;
+    color: #5d4e00;
+  }
+  .didactic-tip strong { color: #b06f00; }
+
+  /* Tabs (per a plugins) */
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--wp-border);
+    margin-bottom: 16px;
+  }
+  .tab {
+    padding: 10px 18px;
+    cursor: pointer;
+    font-size: 13px;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    color: var(--wp-text-muted);
+  }
+  .tab.active {
+    border-bottom-color: var(--wp-accent);
+    color: var(--wp-accent);
+    font-weight: 600;
+  }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+</style>
+</head>
+<body>
+
+<!-- ============ BARRA DOCENT ============ -->
+<div class="docent-bar">
+  <div>
+    <strong>📚 Simulador WordPress · Forn La Llavor</strong>
+    <span class="badge">Dossier Part 1 · 2 ASIX</span>
+    <span style="opacity: 0.8; margin-left: 12px;">Tot ja configurat segons el dossier — clica al menú lateral per navegar</span>
+  </div>
+  <button onclick="document.querySelector('.docent-bar').style.display='none'">Amaga aquesta barra</button>
+</div>
+
+<!-- ============ TOPBAR WORDPRESS ============ -->
+<div class="wp-topbar">
+  <span class="wp-logo">W</span>
+  <a href="#" onclick="show('frontend'); return false;">🏠 Forn La Llavor</a>
+  <a href="#">💬 0</a>
+  <a href="#">+ Nou</a>
+  <div class="right">
+    <a href="#">Hola, marta_admin 👤</a>
+  </div>
+</div>
+
+<!-- ============ LAYOUT ============ -->
+<div class="wp-layout">
+
+  <!-- ============ SIDEBAR ============ -->
+  <nav class="wp-sidebar">
+    <div class="menu-item active" onclick="show('dashboard')" id="m-dashboard">
+      <span class="icon">📊</span><span>Tauler</span>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-item" onclick="show('posts')" id="m-posts">
+      <span class="icon">📌</span><span>Entrades</span>
+    </div>
+    <div class="menu-item" onclick="show('media')" id="m-media">
+      <span class="icon">🖼️</span><span>Mèdia</span>
+    </div>
+    <div class="menu-item" onclick="show('pages')" id="m-pages">
+      <span class="icon">📄</span><span>Pàgines</span>
+    </div>
+    <div class="menu-item" onclick="show('comments')" id="m-comments">
+      <span class="icon">💬</span><span>Comentaris</span>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-section">Aparença</div>
+    <div class="menu-item" onclick="show('themes')" id="m-themes">
+      <span class="icon">🎨</span><span>Temes</span>
+    </div>
+    <div class="menu-item" onclick="show('menus')" id="m-menus">
+      <span class="icon">🔗</span><span>Menús</span>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-item" onclick="show('plugins')" id="m-plugins">
+      <span class="icon">🔌</span><span>Plugins</span>
+    </div>
+    <div class="menu-item" onclick="show('users')" id="m-users">
+      <span class="icon">👥</span><span>Usuaris</span>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-section">Eines</div>
+    <div class="menu-item" onclick="show('tools')" id="m-tools">
+      <span class="icon">🔧</span><span>Importa/Exporta</span>
+    </div>
+    <div class="menu-item" onclick="show('backups')" id="m-backups">
+      <span class="icon">💾</span><span>UpdraftPlus</span>
+    </div>
+    <div class="menu-item" onclick="show('updates')" id="m-updates">
+      <span class="icon">🔄</span><span>Actualitzacions</span>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-section">Configuració</div>
+    <div class="menu-item" onclick="show('settings')" id="m-settings">
+      <span class="icon">⚙️</span><span>General</span>
+    </div>
+    <div class="menu-item" onclick="show('permalinks')" id="m-permalinks">
+      <span class="icon">🔗</span><span>Permalinks</span>
+    </div>
+    <div class="menu-item" onclick="show('rss')" id="m-rss">
+      <span class="icon">📡</span><span>RSS / Feed</span>
+    </div>
+    <div class="menu-item" onclick="show('stats')" id="m-stats">
+      <span class="icon">📈</span><span>WP Statistics</span>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-item" onclick="show('frontend')" id="m-frontend" style="background: #2c3338;">
+      <span class="icon">🌐</span><span>Veure el lloc</span>
+    </div>
+  </nav>
+
+  <!-- ============ CONTINGUT PRINCIPAL ============ -->
+  <main class="wp-content">
+
+    <!-- ===== DASHBOARD ===== -->
+    <section class="section active" id="dashboard">
+      <h1 class="wp-page-title">Tauler</h1>
+      <p class="wp-page-subtitle">Benvinguda al panell d'administració del Forn La Llavor</p>
+
+      <div class="didactic-tip">
+        <strong>📚 Què veus aquí:</strong> aquesta és la pantalla d'inici de WordPress després d'iniciar sessió. Des d'aquí pots accedir a totes les funcions del lloc. Al menú lateral tens organitzades les eines per categories.
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="stat-card">
+          <div class="num">6</div>
+          <div><div style="font-weight: 600;">Pàgines</div><div class="label">Inici, Productes, Encàrrecs, Notícies, Contacte, Avís legal</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="num">3</div>
+          <div><div style="font-weight: 600;">Entrades</div><div class="label">Notícies del blog</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="num">8</div>
+          <div><div style="font-weight: 600;">Plugins actius</div><div class="label">SEO, Forms, Backups, SSL, Security, Antispam, RSS, Stats</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="num">6</div>
+          <div><div style="font-weight: 600;">Usuaris</div><div class="label">1 admin propietària + 4 amb rols + 1 professor</div></div>
+        </div>
+      </div>
+
+      <div class="wp-card" style="margin-top: 16px;">
+        <h2>📋 Estat del lloc</h2>
+        <table class="wp-table">
+          <tr><td>WordPress</td><td>Versió 6.5.2 ✅ actualitzat</td></tr>
+          <tr><td>Tema actiu</td><td>Astra 4.7.1 ✅ personalitzat (logo, colors, tipografia)</td></tr>
+          <tr><td>PHP</td><td>8.1.2 ✅</td></tr>
+          <tr><td>Base de dades</td><td>MariaDB 10.6 — wp_lallavor</td></tr>
+          <tr><td>Última còpia de seguretat</td><td>Avui a les 03:00 ✅ (UpdraftPlus → Google Drive)</td></tr>
+          <tr><td>Estat seguretat</td><td><span class="badge badge-active">Wordfence: 0 amenaces detectades</span></td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== CONFIGURACIÓ GENERAL ===== -->
+    <section class="section" id="settings">
+      <h1 class="wp-page-title">Configuració general</h1>
+      <div class="didactic-tip">
+        <strong>📚 Apartat 2 del dossier:</strong> aquí es defineixen les opcions globals del lloc. Tots els valors que veus són els que s'han justificat al dossier amb el motiu de la tria.
+      </div>
+
+      <div class="wp-card">
+        <div class="form-row">
+          <label>Títol del lloc</label>
+          <div>
+            <input type="text" value="Forn de pa La Llavor" disabled>
+            <div class="desc">Apareix a Google i a la pestanya del navegador. Clau per al SEO.</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Descripció curta</label>
+          <div>
+            <input type="text" value="Pa de massa mare i brioixeria artesana al cor del barri" disabled>
+            <div class="desc">Resum que Google mostra a les cerques. Conté paraules clau del negoci.</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Adreça WordPress (URL)</label>
+          <div>
+            <input type="url" value="http://localhost/lallavor" disabled>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Adreça del lloc (URL)</label>
+          <div>
+            <input type="url" value="http://localhost/lallavor" disabled>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Idioma del lloc</label>
+          <div>
+            <select disabled><option>Català</option></select>
+            <div class="desc">El públic del negoci és catalanoparlant.</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Zona horària</label>
+          <div>
+            <select disabled><option>Europe/Madrid (UTC+1)</option></select>
+            <div class="desc">Perquè les dates de publicació i programació siguin correctes.</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Format de data</label>
+          <div>
+            <select disabled><option>j/n/Y → 21/4/2026</option></select>
+            <div class="desc">Format europeu, més intuïtiu per al públic local.</div>
+          </div>
+        </div>
+        <button class="btn btn-primary" style="margin-top: 16px;">Desa els canvis</button>
+      </div>
+    </section>
+
+    <!-- ===== PERMALINKS ===== -->
+    <section class="section" id="permalinks">
+      <h1 class="wp-page-title">Configuració d'enllaços permanents</h1>
+      <div class="didactic-tip">
+        <strong>📚 Per què importa:</strong> els permalinks definien la forma de les URLs. Una bona estructura ajuda al SEO i fa les URLs més llegibles. ⚠️ NO ho canviïs un cop el lloc està publicat: trenca tots els enllaços existents.
+      </div>
+
+      <div class="wp-card">
+        <h2>Estructura comuna</h2>
+        <div style="padding: 8px 0;">
+          <label><input type="radio" disabled> Senzill — <code>?p=123</code> ❌ Mal per al SEO</label>
+        </div>
+        <div style="padding: 8px 0;">
+          <label><input type="radio" disabled> Dia i nom — <code>/2026/04/21/sample-post/</code></label>
+        </div>
+        <div style="padding: 8px 0; background: #e7f5ea; border-left: 3px solid var(--wp-success); padding-left: 12px;">
+          <label><input type="radio" disabled checked> <strong>Nom de l'entrada</strong> — <code>/%postname%/</code> ✅ Recomanat</label>
+        </div>
+        <div style="padding: 8px 0;">
+          <label><input type="radio" disabled> Personalitzat</label>
+        </div>
+        <button class="btn btn-primary" style="margin-top: 16px;">Desa els canvis</button>
+      </div>
+    </section>
+
+    <!-- ===== PÀGINES ===== -->
+    <section class="section" id="pages">
+      <h1 class="wp-page-title">
+        Pàgines <button class="btn btn-secondary" style="margin-left: 8px;">+ Afegeix una pàgina</button>
+      </h1>
+      <div class="didactic-tip">
+        <strong>📚 Apartat 3 del dossier:</strong> aquestes són les 6 pàgines creades per al Forn La Llavor. Cada una té una funció específica al negoci.
+      </div>
+
+      <table class="wp-table">
+        <thead>
+          <tr>
+            <th><input type="checkbox"></th>
+            <th>Títol</th>
+            <th>Funció / contingut</th>
+            <th>Al menú?</th>
+            <th>Autor</th>
+            <th>Data</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div class="row-title">Inici — Pàgina principal</div>
+              <div class="row-actions"><a>Edita</a> | <a>Edició ràpida</a> | <a>Visualitza</a></div>
+            </td>
+            <td>Foto del forn, horari d'avui i productes destacats.</td>
+            <td><span class="badge badge-active">Sí</span></td>
+            <td>marta_admin</td>
+            <td>21/4/2026</td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div class="row-title">Productes</div>
+              <div class="row-actions"><a>Edita</a> | <a>Edició ràpida</a> | <a>Visualitza</a></div>
+            </td>
+            <td>Catàleg amb fotos i descripcions: pans, brioixeria, pastisseria.</td>
+            <td><span class="badge badge-active">Sí</span></td>
+            <td>marta_admin</td>
+            <td>21/4/2026</td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div class="row-title">Encàrrecs</div>
+              <div class="row-actions"><a>Edita</a> | <a>Edició ràpida</a> | <a>Visualitza</a></div>
+            </td>
+            <td>Formulari per reservar pastissos amb data, tipus i comentaris.</td>
+            <td><span class="badge badge-active">Sí</span></td>
+            <td>marta_admin</td>
+            <td>21/4/2026</td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div class="row-title">Notícies</div>
+              <div class="row-actions"><a>Edita</a> | <a>Edició ràpida</a> | <a>Visualitza</a></div>
+            </td>
+            <td>Llistat d'entrades del blog amb novetats.</td>
+            <td><span class="badge badge-active">Sí</span></td>
+            <td>marta_admin</td>
+            <td>21/4/2026</td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div class="row-title">Contacte</div>
+              <div class="row-actions"><a>Edita</a> | <a>Edició ràpida</a> | <a>Visualitza</a></div>
+            </td>
+            <td>Adreça, telèfon, horari i formulari de contacte.</td>
+            <td><span class="badge badge-active">Sí</span></td>
+            <td>marta_admin</td>
+            <td>21/4/2026</td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div class="row-title">Avís legal</div>
+              <div class="row-actions"><a>Edita</a> | <a>Edició ràpida</a> | <a>Visualitza</a></div>
+            </td>
+            <td>Política de privacitat i cookies. Obligatori per RGPD.</td>
+            <td><span class="badge badge-warning">Peu de pàgina</span></td>
+            <td>marta_admin</td>
+            <td>21/4/2026</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ===== ENTRADES ===== -->
+    <section class="section" id="posts">
+      <h1 class="wp-page-title">
+        Entrades <button class="btn btn-secondary" style="margin-left: 8px;">+ Afegeix una entrada</button>
+      </h1>
+      <div class="didactic-tip">
+        <strong>📚 Pàgines vs Entrades:</strong> les entrades són contingut cronològic (notícies, blog). Es mostren al feed RSS i tenen categories. Aquí veus les 3 entrades creades per a l'apartat 7 (Importació/Exportació).
+      </div>
+
+      <table class="wp-table">
+        <thead>
+          <tr>
+            <th><input type="checkbox"></th>
+            <th>Títol</th>
+            <th>Autor</th>
+            <th>Categoria</th>
+            <th>Etiquetes</th>
+            <th>Data</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td><div class="row-title">Nous panellets per Tots Sants</div>
+                <div class="row-actions"><a>Edita</a> | <a>Visualitza</a></div></td>
+            <td>marta_admin</td>
+            <td>Notícies</td>
+            <td>panellets, tradició</td>
+            <td>20/4/2026</td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td><div class="row-title">Així fem el nostre pa de massa mare</div>
+                <div class="row-actions"><a>Edita</a> | <a>Visualitza</a></div></td>
+            <td>anna_autora</td>
+            <td>Notícies</td>
+            <td>massa mare, artesà</td>
+            <td>18/4/2026</td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td><div class="row-title">Horari especial Setmana Santa</div>
+                <div class="row-actions"><a>Edita</a> | <a>Visualitza</a></div></td>
+            <td>joan_editor</td>
+            <td>Avisos</td>
+            <td>horari, festius</td>
+            <td>10/4/2026</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ===== TEMES ===== -->
+    <section class="section" id="themes">
+      <h1 class="wp-page-title">Temes</h1>
+      <div class="didactic-tip">
+        <strong>📚 Tema actiu:</strong> Astra (versió 4.7.1) personalitzat amb logo, colors marrons/daurats i tipografia serif. Compleix el criteri 3.6 de la rúbrica.
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+        <div style="border: 3px solid var(--wp-success); border-radius: 4px; overflow: hidden; background: white;">
+          <div style="background: linear-gradient(135deg, #6b3410, #8a4818); height: 140px; padding: 14px; color: #faf6f0; font-family: Georgia, serif;">
+            <div style="font-style: italic; font-size: 18px;">Forn La Llavor</div>
+            <div style="font-size: 11px; margin-top: 4px;">Pa de massa mare</div>
+          </div>
+          <div style="padding: 12px;">
+            <div style="font-weight: 600;">Astra <span class="badge badge-active">Actiu</span></div>
+            <div style="font-size: 12px; color: var(--wp-text-muted); margin-top: 4px;">Personalitzat per al Forn</div>
+            <button class="btn btn-secondary" style="margin-top: 8px; font-size: 12px;">Personalitza</button>
+          </div>
+        </div>
+        <div style="border: 1px solid var(--wp-border); border-radius: 4px; overflow: hidden; background: white;">
+          <div style="background: linear-gradient(135deg, #2c3e50, #34495e); height: 140px;"></div>
+          <div style="padding: 12px;">
+            <div style="font-weight: 600;">OceanWP</div>
+            <div style="font-size: 12px; color: var(--wp-text-muted); margin-top: 4px;">Versió 3.5.2</div>
+          </div>
+        </div>
+        <div style="border: 1px solid var(--wp-border); border-radius: 4px; overflow: hidden; background: white;">
+          <div style="background: linear-gradient(135deg, #16a085, #1abc9c); height: 140px;"></div>
+          <div style="padding: 12px;">
+            <div style="font-weight: 600;">GeneratePress</div>
+            <div style="font-size: 12px; color: var(--wp-text-muted); margin-top: 4px;">Versió 3.4.0</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== MENÚS ===== -->
+    <section class="section" id="menus">
+      <h1 class="wp-page-title">Menús</h1>
+      <div class="didactic-tip">
+        <strong>📚 Apartat 3:</strong> menú principal del Forn La Llavor. Pots arrossegar els elements per ordenar-los i indentar-los per crear submenús.
+      </div>
+
+      <div class="wp-card">
+        <h2>Estructura del menú: "Menú principal"</h2>
+        <div class="menu-builder">
+          <div class="menu-item-row">
+            <div><span class="drag">☰</span><span class="label-name">Inici</span><span class="label-type">Pàgina</span></div>
+            <span style="color: var(--wp-text-muted); font-size: 12px;">▼</span>
+          </div>
+          <div class="menu-item-row">
+            <div><span class="drag">☰</span><span class="label-name">Productes</span><span class="label-type">Pàgina</span></div>
+            <span style="color: var(--wp-text-muted); font-size: 12px;">▼</span>
+          </div>
+          <div class="menu-item-row">
+            <div><span class="drag">☰</span><span class="label-name">Encàrrecs</span><span class="label-type">Pàgina</span></div>
+            <span style="color: var(--wp-text-muted); font-size: 12px;">▼</span>
+          </div>
+          <div class="menu-item-row">
+            <div><span class="drag">☰</span><span class="label-name">Notícies</span><span class="label-type">Pàgina</span></div>
+            <span style="color: var(--wp-text-muted); font-size: 12px;">▼</span>
+          </div>
+          <div class="menu-item-row">
+            <div><span class="drag">☰</span><span class="label-name">Contacte</span><span class="label-type">Pàgina</span></div>
+            <span style="color: var(--wp-text-muted); font-size: 12px;">▼</span>
+          </div>
+        </div>
+
+        <h3 style="margin-top: 16px;">Configuració del menú</h3>
+        <div class="form-row">
+          <label>Nom del menú</label>
+          <input type="text" value="Menú principal" disabled>
+        </div>
+        <div class="form-row">
+          <label>Ubicació al tema</label>
+          <div>
+            <label><input type="checkbox" checked disabled> ✅ <strong>Primary Menu</strong> (capçalera)</label><br>
+            <label><input type="checkbox" disabled> Footer Menu</label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PLUGINS ===== -->
+    <section class="section" id="plugins">
+      <h1 class="wp-page-title">Plugins instal·lats</h1>
+      <div class="didactic-tip">
+        <strong>📚 Apartat 4:</strong> els 8 plugins obligatoris del dossier. Tots actius i configurats. Cliqueu cada un per veure'n la configuració detallada.
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" onclick="showTab(event, 'plug-seo')">1. SEO</div>
+        <div class="tab" onclick="showTab(event, 'plug-form')">2. Formulari</div>
+        <div class="tab" onclick="showTab(event, 'plug-backup')">3. Còpies</div>
+        <div class="tab" onclick="showTab(event, 'plug-ssl')">4. SSL</div>
+        <div class="tab" onclick="showTab(event, 'plug-sec')">5. Seguretat</div>
+        <div class="tab" onclick="showTab(event, 'plug-spam')">6. Antispam</div>
+        <div class="tab" onclick="showTab(event, 'plug-rss')">7. RSS</div>
+        <div class="tab" onclick="showTab(event, 'plug-stats')">8. Estadístiques</div>
+      </div>
+
+      <div class="tab-content active" id="plug-seo">
+        <div class="plugin-card">
+          <div class="head"><h3>🔍 Yoast SEO</h3><span class="badge badge-active">Actiu</span></div>
+          <div class="desc-plugin">Versió 22.4 · Optimització de motors de cerca</div>
+          <div class="config-summary">
+            <strong>✅ Configuració aplicada:</strong><br>
+            • Tipus de lloc: Petita empresa<br>
+            • Títol per defecte: %%title%% | Forn La Llavor<br>
+            • Sitemap XML actiu a /sitemap_index.xml<br>
+            • Paraules clau focals definides a totes les pàgines
+          </div>
+          <div style="margin-top: 12px;">
+            <strong>Anàlisi SEO de la pàgina "Productes":</strong><br>
+            <div style="margin-top: 8px;">
+              <span class="seo-light seo-good"><span class="dot"></span>Llegibilitat: bona</span>
+              <span class="seo-light seo-good" style="margin-left: 8px;"><span class="dot"></span>SEO: bo</span>
+            </div>
+            <div style="margin-top: 8px; font-size: 12px;">Paraula clau: <code>pa de massa mare</code> ✓ apareix al títol, URL, primer paràgraf i alt d'imatge</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="plug-form">
+        <div class="plugin-card">
+          <div class="head"><h3>📧 Contact Form 7</h3><span class="badge badge-active">Actiu</span></div>
+          <div class="desc-plugin">Versió 5.9 · Formularis sense codi</div>
+          <div class="config-summary">
+            <strong>✅ Formulari "Encàrrec pastís" creat:</strong><br>
+            • Camps: Nom, Correu, Telèfon, Tipus de pastís, Data, Comentaris<br>
+            • Destinatari: encarrecs@lallavor.local<br>
+            • Inserit a la pàgina "Encàrrecs" amb shortcode:<br>
+            <code style="background: white; padding: 4px 8px; border-radius: 3px;">[contact-form-7 id="5" title="Encàrrec pastís"]</code>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="plug-backup">
+        <div class="plugin-card">
+          <div class="head"><h3>💾 UpdraftPlus</h3><span class="badge badge-active">Actiu</span></div>
+          <div class="desc-plugin">Versió 1.23.13 · Còpies de seguretat</div>
+          <div class="config-summary">
+            <strong>✅ Configuració:</strong><br>
+            • Programació BD: <strong>diària a les 03:00</strong><br>
+            • Programació fitxers: <strong>setmanal els diumenges</strong><br>
+            • Destinació remota: Google Drive<br>
+            • Última còpia: avui 03:00 · 47 MB · ✅ correcta<br>
+            • Prova de restauració: ✅ feta amb la pàgina "Encàrrecs"
+          </div>
+          <table class="wp-table" style="margin-top: 12px;">
+            <thead><tr><th>Data</th><th>Mida</th><th>Contingut</th><th>Accions</th></tr></thead>
+            <tbody>
+              <tr><td>21/4/2026 03:00</td><td>47 MB</td><td>BD + fitxers</td><td><a>Restaura</a> | <a>Descarrega</a></td></tr>
+              <tr><td>20/4/2026 03:00</td><td>2 MB</td><td>Només BD</td><td><a>Restaura</a> | <a>Descarrega</a></td></tr>
+              <tr><td>19/4/2026 03:00</td><td>2 MB</td><td>Només BD</td><td><a>Restaura</a> | <a>Descarrega</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tab-content" id="plug-ssl">
+        <div class="plugin-card">
+          <div class="head"><h3>🔒 Really Simple SSL</h3><span class="badge badge-active">Actiu</span></div>
+          <div class="desc-plugin">Versió 7.3 · Força HTTPS al lloc</div>
+          <div class="config-summary">
+            <strong>⚠️ En localhost:</strong> el cadenat no apareix perquè el certificat és autosignat (no reconegut per cap autoritat).<br>
+            En producció generaríem un certificat amb Let's Encrypt o OpenSSL.<br>
+            <strong>HTTP vs HTTPS:</strong> HTTP envia dades sense xifrar (com una postal). HTTPS afegeix una capa SSL/TLS (com un sobre tancat).
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="plug-sec">
+        <div class="plugin-card">
+          <div class="head"><h3>🛡️ Wordfence Security</h3><span class="badge badge-active">Actiu</span></div>
+          <div class="desc-plugin">Versió 7.11 · Firewall WAF + escàner antimalware</div>
+          <div class="config-summary">
+            <strong>✅ Configuració aplicada:</strong><br>
+            • Firewall: mode "Learning" durant 7 dies<br>
+            • Limitació login: bloqueig després de 5 intents fallits<br>
+            • Escanejos automàtics: <strong>setmanals</strong>
+          </div>
+          <div style="margin-top: 12px; padding: 12px; background: #d1f1d8; border-radius: 4px;">
+            <strong>🛡️ Últim escaneig (avui):</strong><br>
+            ✅ 0 amenaces detectades<br>
+            ✅ 0 fitxers modificats sospitosament<br>
+            ✅ 0 vulnerabilitats conegudes
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="plug-spam">
+        <div class="plugin-card">
+          <div class="head"><h3>🚫 Akismet Anti-Spam</h3><span class="badge badge-active">Actiu</span></div>
+          <div class="desc-plugin">Versió 5.3 · Filtra comentaris spam</div>
+          <div class="config-summary">
+            <strong>✅ Configuració:</strong><br>
+            • Clau API configurada (pla Personal gratuït)<br>
+            • Filtra comentaris al blog i enviaments de Contact Form 7<br>
+            • Comentaris bloquejats aquest mes: <strong>23</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="plug-rss">
+        <div class="plugin-card">
+          <div class="head"><h3>📡 Feedzy RSS Feeds</h3><span class="badge badge-active">Actiu</span></div>
+          <div class="desc-plugin">Versió 4.4 · Importa i mostra feeds externs</div>
+          <div class="config-summary">
+            <strong>✅ Feed extern configurat:</strong><br>
+            • URL: <code>https://www.gastronomiaycia.com/feed/</code><br>
+            • Mostrat a /noticies/ amb shortcode:<br>
+            <code style="background: white; padding: 4px 8px;">[feedzy-rss feeds="..." max="5" feed_title="yes"]</code>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="plug-stats">
+        <div class="plugin-card">
+          <div class="head"><h3>📈 WP Statistics</h3><span class="badge badge-active">Actiu</span></div>
+          <div class="desc-plugin">Versió 14.5 · Estadístiques sense cookies (RGPD-friendly)</div>
+          <div class="config-summary">
+            <strong>✅ Configuració:</strong><br>
+            • Excloure usuaris registrats: ✓<br>
+            • Retenció de dades: 12 mesos<br>
+            • Informes per correu: mensuals
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== USUARIS ===== -->
+    <section class="section" id="users">
+      <h1 class="wp-page-title">Usuaris <button class="btn btn-secondary">+ Afegeix nou</button></h1>
+      <div class="didactic-tip">
+        <strong>📚 Apartat 5 — Principi de mínim privilegi:</strong> cada usuari té només els permisos que necessita. Mai es comparteix el compte d'administrador.
+      </div>
+
+      <table class="wp-table">
+        <thead>
+          <tr><th>Usuari</th><th>Nom</th><th>Correu</th><th>Rol</th><th>Funció al negoci</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="row-title">marta_admin</div></td>
+            <td>Marta Vilaseca</td>
+            <td>marta@lallavor.local</td>
+            <td><span class="badge badge-warning">Administrador</span></td>
+            <td>Propietària del forn — control total</td>
+          </tr>
+          <tr>
+            <td><div class="row-title">joan_editor</div></td>
+            <td>Joan Pons</td>
+            <td>joan@lallavor.local</td>
+            <td><span class="badge badge-active">Editor</span></td>
+            <td>Encarregat de comunicació — edita totes les entrades</td>
+          </tr>
+          <tr>
+            <td><div class="row-title">anna_autora</div></td>
+            <td>Anna Martí</td>
+            <td>anna@lallavor.local</td>
+            <td><span class="badge badge-active">Autor</span></td>
+            <td>Fornera — escriu receptes pròpies</td>
+          </tr>
+          <tr>
+            <td><div class="row-title">pau_collab</div></td>
+            <td>Pau Roig</td>
+            <td>pau@lallavor.local</td>
+            <td><span class="badge badge-active">Col·laborador</span></td>
+            <td>Becari pràctiques — esborranys</td>
+          </tr>
+          <tr>
+            <td><div class="row-title">client_demo</div></td>
+            <td>Client Demo</td>
+            <td>client@lallavor.local</td>
+            <td><span class="badge badge-active">Subscriptor</span></td>
+            <td>Client habitual — només llegeix</td>
+          </tr>
+          <tr style="background: #fff8e1;">
+            <td><div class="row-title">professor</div></td>
+            <td>Professor IES</td>
+            <td>professor@lallavor.local</td>
+            <td><span class="badge badge-warning">Administrador</span></td>
+            <td>Docent / avaluador</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="wp-card" style="margin-top: 16px;">
+        <h2>📊 Comparativa de permisos per rol</h2>
+        <table class="wp-table">
+          <thead>
+            <tr><th>Acció</th><th>Subscriptor</th><th>Col·lab.</th><th>Autor</th><th>Editor</th><th>Admin</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Llegir</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+            <tr><td>Escriure entrades</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+            <tr><td>Publicar pròpies</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
+            <tr><td>Editar d'altres</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr>
+            <tr><td>Instal·lar plugins</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
+            <tr><td>Gestionar usuaris</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== UPDRAFTPLUS DETALL ===== -->
+    <section class="section" id="backups">
+      <h1 class="wp-page-title">UpdraftPlus — Còpies de seguretat</h1>
+      <div class="didactic-tip">
+        <strong>📚 Apartat 6 — Regla 3-2-1:</strong> 3 còpies, 2 suports, 1 fora del servidor. Aquí veus la configuració aplicada.
+      </div>
+
+      <div class="wp-card">
+        <h2>📅 Programació actual</h2>
+        <div class="form-row">
+          <label>Còpia de la base de dades</label>
+          <div><strong>Diària a les 03:00</strong> · Justificació: la BD canvia molt (entrades, comentaris)</div>
+        </div>
+        <div class="form-row">
+          <label>Còpia de fitxers</label>
+          <div><strong>Setmanal els diumenges</strong> · Justificació: els fitxers canvien poc i ocupen molt</div>
+        </div>
+        <div class="form-row">
+          <label>Destinació remota</label>
+          <div>☁️ <strong>Google Drive</strong> (compte autoritzat) · ✅ Compleix la regla 3-2-1</div>
+        </div>
+      </div>
+
+      <div class="wp-card">
+        <h2>📦 Còpies disponibles</h2>
+        <table class="wp-table">
+          <thead><tr><th>Data</th><th>Mida</th><th>Contingut</th><th>Estat</th><th>Accions</th></tr></thead>
+          <tbody>
+            <tr><td>21/4/2026 03:00</td><td>47 MB</td><td>BD + fitxers</td><td><span class="badge badge-active">✅</span></td><td><a>Restaura</a> | <a>Veure log</a></td></tr>
+            <tr><td>20/4/2026 03:00</td><td>2 MB</td><td>Només BD</td><td><span class="badge badge-active">✅</span></td><td><a>Restaura</a> | <a>Veure log</a></td></tr>
+            <tr><td>14/4/2026 03:00</td><td>46 MB</td><td>BD + fitxers</td><td><span class="badge badge-active">✅</span></td><td><a>Restaura</a> | <a>Veure log</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="wp-card" style="border-left: 4px solid var(--wp-success);">
+        <h2>✅ Prova de restauració completada</h2>
+        <p style="margin-bottom: 8px;">Procés realitzat:</p>
+        <ol style="padding-left: 20px;">
+          <li>Esborrada la pàgina "Encàrrecs" (per simular un problema)</li>
+          <li>Restaurada només la BD des de la còpia de 21/4/2026</li>
+          <li>✅ Pàgina recuperada correctament al menú i al frontend</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===== TOOLS (IMPORT/EXPORT) ===== -->
+    <section class="section" id="tools">
+      <h1 class="wp-page-title">Eines — Importa / Exporta</h1>
+      <div class="didactic-tip">
+        <strong>📚 Apartat 7 — Format WXR:</strong> XML que conté pàgines, entrades, categories... però NO les imatges físiques (només les seves URLs).
+      </div>
+
+      <div class="wp-card">
+        <h2>📤 Última exportació</h2>
+        <div class="form-row">
+          <label>Tipus exportat</label>
+          <div>Entrades (només posts, no pàgines ni comentaris)</div>
+        </div>
+        <div class="form-row">
+          <label>Fitxer generat</label>
+          <div>📄 <code>lallavor.WordPress.2026-04-21.xml</code> (28 KB)</div>
+        </div>
+        <div class="form-row">
+          <label>Conté</label>
+          <div>3 entrades + categories "Notícies" i "Avisos" + etiquetes + URLs d'imatges</div>
+        </div>
+      </div>
+
+      <div class="wp-card">
+        <h2>📥 Cicle complet realitzat</h2>
+        <ol style="padding-left: 20px;">
+          <li>✅ Creació de 3 entrades manualment</li>
+          <li>✅ Exportació a XML (Eines → Exporta)</li>
+          <li>✅ Eliminació definitiva de les 3 entrades</li>
+          <li>✅ Reimportació via Eines → Importa → WordPress</li>
+          <li>✅ Verificació: les 3 entrades han tornat amb autor i data originals</li>
+        </ol>
+      </div>
+
+      <div class="wp-card">
+        <h2>📋 Casos d'ús pràctics</h2>
+        <ul style="padding-left: 20px;">
+          <li><strong>Migració de servidor</strong> — passar el lloc d'un hosting a un altre</li>
+          <li><strong>Còpia de continguts</strong> — recuperar entrades si el lloc es trenca</li>
+          <li><strong>Compartir entre llocs</strong> — webs catalana i castellana</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ===== RSS ===== -->
+    <section class="section" id="rss">
+      <h1 class="wp-page-title">Feed RSS del lloc</h1>
+      <div class="didactic-tip">
+        <strong>📚 Apartat 8 — Sindicació:</strong> WordPress genera automàticament el feed a /feed/. Es subscriuen lectors externs (Feedly) per rebre les novetats sense visitar el lloc.
+      </div>
+
+      <div class="wp-card">
+        <h2>🔗 URL del feed</h2>
+        <code style="background: #f6f7f7; padding: 8px 12px; display: inline-block; border-radius: 3px;">http://localhost/lallavor/feed/</code>
+      </div>
+
+      <div class="wp-card">
+        <h2>📄 Estructura XML del feed (real)</h2>
+<div class="code-block"><span class="tag">&lt;rss</span> <span class="attr">version</span>=<span class="str">"2.0"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;channel&gt;</span>
+    <span class="tag">&lt;title&gt;</span>Forn La Llavor<span class="tag">&lt;/title&gt;</span>
+    <span class="tag">&lt;link&gt;</span>http://localhost/lallavor<span class="tag">&lt;/link&gt;</span>
+    <span class="tag">&lt;description&gt;</span>Pa de massa mare i brioixeria artesana<span class="tag">&lt;/description&gt;</span>
+
+    <span class="tag">&lt;item&gt;</span>
+      <span class="tag">&lt;title&gt;</span>Nous panellets per Tots Sants<span class="tag">&lt;/title&gt;</span>
+      <span class="tag">&lt;link&gt;</span>http://localhost/lallavor/?p=24<span class="tag">&lt;/link&gt;</span>
+      <span class="tag">&lt;pubDate&gt;</span>Mon, 20 Apr 2026 10:00:00 +0200<span class="tag">&lt;/pubDate&gt;</span>
+      <span class="tag">&lt;description&gt;</span>Anunci del calendari de panellets...<span class="tag">&lt;/description&gt;</span>
+    <span class="tag">&lt;/item&gt;</span>
+
+    <span class="tag">&lt;item&gt;</span>
+      <span class="tag">&lt;title&gt;</span>Així fem el nostre pa de massa mare<span class="tag">&lt;/title&gt;</span>
+      <span class="tag">&lt;link&gt;</span>http://localhost/lallavor/?p=22<span class="tag">&lt;/link&gt;</span>
+      <span class="tag">&lt;pubDate&gt;</span>Sat, 18 Apr 2026 09:00:00 +0200<span class="tag">&lt;/pubDate&gt;</span>
+      <span class="tag">&lt;description&gt;</span>Reportatge del procés artesà...<span class="tag">&lt;/description&gt;</span>
+    <span class="tag">&lt;/item&gt;</span>
+  <span class="tag">&lt;/channel&gt;</span>
+<span class="tag">&lt;/rss&gt;</span></div>
+      </div>
+
+      <div class="wp-card">
+        <h2>📥 Feed extern importat (Feedzy)</h2>
+        <p>Mostrat a la pàgina /noticies/ — origen: <code>gastronomiaycia.com/feed/</code></p>
+        <table class="wp-table" style="margin-top: 8px;">
+          <thead><tr><th>Titular</th><th>Font</th><th>Data</th></tr></thead>
+          <tbody>
+            <tr><td>Tendències en pa artesà 2026</td><td>Gastronomia y Cía</td><td>20/4/2026</td></tr>
+            <tr><td>Les masses mare més antigues d'Europa</td><td>Gastronomia y Cía</td><td>18/4/2026</td></tr>
+            <tr><td>Forns ecològics: el retorn al passat</td><td>Gastronomia y Cía</td><td>15/4/2026</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== ACTUALITZACIONS ===== -->
+    <section class="section" id="updates">
+      <h1 class="wp-page-title">Actualitzacions de WordPress</h1>
+      <div class="didactic-tip">
+        <strong>📚 Apartat 9 — Ordre crític:</strong> 1) Còpia · 2) Nucli · 3) Plugins · 4) Tema · 5) Verificar.
+      </div>
+
+      <div class="wp-card" style="border-left: 4px solid var(--wp-success);">
+        <h2>✅ Sistema actualitzat</h2>
+        <table class="wp-table">
+          <thead><tr><th>#</th><th>Element</th><th>Versió actual</th><th>Estat</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td><strong>Nucli WordPress</strong></td><td>6.5.2 (actualitzat des de 6.4.1)</td><td><span class="badge badge-active">✅</span></td></tr>
+            <tr><td>2</td><td><strong>Yoast SEO</strong></td><td>22.4</td><td><span class="badge badge-active">✅</span></td></tr>
+            <tr><td>2</td><td><strong>Wordfence Security</strong></td><td>7.11</td><td><span class="badge badge-active">✅</span></td></tr>
+            <tr><td>2</td><td><strong>UpdraftPlus</strong></td><td>1.23.13</td><td><span class="badge badge-active">✅</span></td></tr>
+            <tr><td>2</td><td><strong>Contact Form 7</strong></td><td>5.9</td><td><span class="badge badge-active">✅</span></td></tr>
+            <tr><td>3</td><td><strong>Tema Astra</strong></td><td>4.7.1 (actualitzat des de 4.6.0)</td><td><span class="badge badge-active">✅</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="wp-card">
+        <h2>🔍 Per què aquest ordre?</h2>
+        <ol style="padding-left: 20px;">
+          <li><strong>Còpia prèvia</strong> — sempre, sempre, sempre. Si alguna cosa es trenca, podem tornar enrere.</li>
+          <li><strong>Nucli primer</strong> — perquè els plugins i temes s'actualitzen pensant en la versió actual del nucli.</li>
+          <li><strong>Plugins després</strong> — el nucli ja està actualitzat i els plugins s'adapten correctament.</li>
+          <li><strong>Tema al final</strong> — depèn d'algunes funcions del nucli i dels plugins ja actualitzats.</li>
+          <li><strong>Verificació</strong> — recarregar el frontend, provar formulari, visitar pàgines.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===== ESTADÍSTIQUES ===== -->
+    <section class="section" id="stats">
+      <h1 class="wp-page-title">WP Statistics — Informes d'accés</h1>
+      <div class="didactic-tip">
+        <strong>📚 Apartat 10:</strong> dades de visites generades durant 4 dies de proves.
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="stat-card"><div class="num">47</div><div><div style="font-weight: 600;">Visites totals</div><div class="label">Últims 4 dies</div></div></div>
+        <div class="stat-card"><div class="num">71%</div><div><div style="font-weight: 600;">Mòbil</div><div class="label">Tendència dominant</div></div></div>
+        <div class="stat-card"><div class="num">62%</div><div><div style="font-weight: 600;">Chrome</div><div class="label">Navegador majoritari</div></div></div>
+        <div class="stat-card"><div class="num">3.2</div><div><div style="font-weight: 600;">Pàgines/visita</div><div class="label">Engagement mitjà</div></div></div>
+      </div>
+
+      <div class="wp-card" style="margin-top: 16px;">
+        <h2>📊 Pàgines més visitades</h2>
+        <table class="wp-table">
+          <thead><tr><th>Pàgina</th><th>Visites</th><th>%</th><th>Barra</th></tr></thead>
+          <tbody>
+            <tr><td>Inici</td><td>18</td><td>38%</td><td><div style="background: var(--wp-accent); height: 14px; width: 100%; border-radius: 2px;"></div></td></tr>
+            <tr><td>Productes</td><td>12</td><td>26%</td><td><div style="background: var(--wp-accent); height: 14px; width: 67%; border-radius: 2px;"></div></td></tr>
+            <tr><td>Encàrrecs</td><td>9</td><td>19%</td><td><div style="background: var(--wp-accent); height: 14px; width: 50%; border-radius: 2px;"></div></td></tr>
+            <tr><td>Notícies</td><td>5</td><td>11%</td><td><div style="background: var(--wp-accent); height: 14px; width: 28%; border-radius: 2px;"></div></td></tr>
+            <tr><td>Contacte</td><td>3</td><td>6%</td><td><div style="background: var(--wp-accent); height: 14px; width: 17%; border-radius: 2px;"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="wp-card" style="border-left: 4px solid #f9a825;">
+        <h2>💡 Conclusions per millorar el negoci</h2>
+        <ul style="padding-left: 20px;">
+          <li><strong>71% del trànsit és mòbil</strong> → verificar disseny responsive a totes les pàgines</li>
+          <li><strong>Encàrrecs té poques visites</strong> → afegir botó destacat "Reserva el teu pastís" a la portada</li>
+          <li><strong>Afegir botó "Truca'ns"</strong> amb enllaç tel: visible només en mòbils</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ===== FRONTEND PUBLIC ===== -->
+    <section class="section" id="frontend">
+      <h1 class="wp-page-title">🌐 Vista pública del lloc (Frontend)</h1>
+      <div class="didactic-tip">
+        <strong>📚 Així el veuen els clients:</strong> resultat del tema Astra personalitzat amb logo, colors marrons/daurats i tipografia serif.
+      </div>
+
+      <div class="frontend-preview">
+        <div class="frontend-header">
+          <h1>🌾 Forn La Llavor</h1>
+          <div style="font-size: 12px;">📞 93 123 45 67 · 📍 c/ Major, 12</div>
+        </div>
+        <nav class="frontend-nav">
+          <a href="#">Inici</a>
+          <a href="#">Productes</a>
+          <a href="#">Encàrrecs</a>
+          <a href="#">Notícies</a>
+          <a href="#">Contacte</a>
+        </nav>
+        <div class="frontend-hero">
+          <h2>Pa de massa mare i brioixeria artesana al cor del barri</h2>
+          <p>Producte fresc cada dia · Obrador propi · Farines ecològiques</p>
+        </div>
+        <div class="frontend-products">
+          <div class="product-card">
+            <div class="emoji">🍞</div>
+            <h4>Pa de massa mare</h4>
+            <div class="price">3,80 €</div>
+          </div>
+          <div class="product-card">
+            <div class="emoji">🥐</div>
+            <h4>Croissant</h4>
+            <div class="price">1,50 €</div>
+          </div>
+          <div class="product-card">
+            <div class="emoji">🎂</div>
+            <h4>Pastís per encàrrec</h4>
+            <div class="price">des de 18 €</div>
+          </div>
+        </div>
+        <div class="frontend-footer">
+          © 2026 Forn La Llavor · <a href="#" style="color: #d4c4a8;">Avís legal</a> · Fet amb WordPress
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  function show(id) {
+    // Amaga totes les seccions
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    // Mostra la seleccionada
+    const target = document.getElementById(id);
+    if (target) target.classList.add('active');
+    // Actualitza el menú lateral
+    document.querySelectorAll('.wp-sidebar .menu-item').forEach(m => m.classList.remove('active'));
+    const menuItem = document.getElementById('m-' + id);
+    if (menuItem) menuItem.classList.add('active');
+    // Scroll al principi
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function showTab(event, id) {
+    // Amaga tots els tab-content del mateix tabs
+    const tabsContainer = event.target.closest('.section');
+    tabsContainer.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    tabsContainer.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+
+</body>
+</html>
